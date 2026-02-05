@@ -115,7 +115,7 @@ class DatabaseHandler:
             select_query += " WHERE motor_id = ?"
             params.append(motor_id)
             
-        select_query += " ORDER BY timestamp DESC LIMIT ?"
+        select_query += " ORDER BY timestamp DESC, id DESC LIMIT ?"
         params.append(limit)
         
         try:
