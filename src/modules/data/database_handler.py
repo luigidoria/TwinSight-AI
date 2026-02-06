@@ -4,7 +4,7 @@ import os
 from typing import Dict, List, Any, Optional
 
 # --- Logging Configuration ---
-logging.basicConfig(level=logging.INFO)
+#logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("TwinSight-DB")
 
 class DatabaseHandler:
