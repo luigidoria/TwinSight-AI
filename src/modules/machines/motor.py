@@ -6,11 +6,11 @@ from abc import ABC, abstractmethod
 from typing import Dict, Any
 
 # --- Logging Configuration ---
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S"
-)
+#logging.basicConfig(
+#    level=logging.INFO,
+#    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+#    datefmt="%Y-%m-%d %H:%M:%S"
+#)
 logger = logging.getLogger("TwinSight-MotorSim")
 
 class MotorSensor(ABC):
