@@ -1,34 +1,49 @@
 import os
-import sys
-from dotenv import load_dotenv
 import logging
+from dotenv import load_dotenv, set_key, find_dotenv
+from pathlib import Path
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-logger = logging.getLogger("TwinSight-Orchestrator")
+# Configure module-level logger
+logger = logging.getLogger("TwinSight-EnvLoader")
 
-def get_environment() -> dict:
+def load_config() -> dict:
     """
-    Loads environment variables from a .env file and returns them as a dictionary.
-    Expected variables: API_URL, API_KEY, MODEL_FOR_TEXT, MODEL_FOR_JSON
+    Loads environment variables from the .env file.
+    
+    Expected Structure:
+    - API_URL: Base URL for the LLM provider.
+    - API_KEY: Authentication token.
+    - MODEL_FOR_TEXT: Main model for analysis/chat.
+    - MODEL_FOR_JSON: Specialized model for structured data extraction.
+    - VALIDATION_MODEL: Lightweight model used solely for connection testing.
     """
+    env_path = find_dotenv()
     
-    loaded = load_dotenv()
-    
-    if not loaded:
-        logger.error("File: .env not found or empty. Please ensure it exists and contains the necessary variables.")
-        return {}
-    
-    api_url = os.getenv("API_URL")
-    secret_key = os.getenv("API_KEY")
-    model_text = os.getenv("MODEL_FOR_TEXT")
-    model_json = os.getenv("MODEL_FOR_JSON")
+    if not env_path:
+        logger.warning("Configuration file (.env) not found. Relying on system environment variables.")
+    else:
+        load_dotenv(env_path, override=True)
 
     return {
-        "API_URL": api_url,
-        "API_KEY": secret_key,
-        "MODEL_FOR_TEXT": model_text,
-        "MODEL_FOR_JSON": model_json
+        "API_URL": os.getenv("API_URL"),
+        "API_KEY": os.getenv("API_KEY"),
+        "MODEL_FOR_TEXT": os.getenv("MODEL_FOR_TEXT"),
+        "MODEL_FOR_JSON": os.getenv("MODEL_FOR_JSON"),
+        "VALIDATION_MODEL": os.getenv("VALIDATION_MODEL"),
     }
-    
-if __name__ == "__main__":
-    get_environment()
+
+def update_env_variable(key: str, value: str):
+    """Updates or adds a specific variable to the local .env file."""
+    try:
+        env_path = find_dotenv()
+        
+        if not env_path:
+            root_dir = Path(__file__).resolve().parent.parent.parent
+            env_path = root_dir / ".env"
+            env_path.touch()
+
+        set_key(str(env_path), key, value)
+        load_dotenv(env_path, override=True)
+        
+    except Exception as e:
+        logger.error(f"Failed to write to .env file: {str(e)}")
