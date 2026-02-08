@@ -74,6 +74,15 @@ class TwinSightApp:
                 'status': []
             }
             self._set_state('filters', default_filters)
+
+        if self._get_state('sim_config') is None:
+            default_sim = {
+                'motor_type': 'FAN',
+                'motor_count': 1,
+                'duration_days': 60,
+                'sampling_rate_min': 60
+            }
+        self._set_state('sim_config', default_sim)
     
     @property
     def context(self) -> str:
@@ -101,6 +110,16 @@ class TwinSightApp:
     def filters(self) -> Dict:
         """Gets the active filter configuration."""
         return self._get_state('filters', {})
+    
+    @property
+    def simulation_config(self) -> Dict:
+        """Gets the current simulation configuration."""
+        return self._get_state('sim_config', {})
+
+    @simulation_config.setter
+    def simulation_config(self, new_config: Dict):
+        """Sets the simulation configuration."""
+        self._set_state('sim_config', new_config)
 
     @filters.setter
     def filters(self, new_filters: Dict):
