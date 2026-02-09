@@ -41,16 +41,14 @@ class TwinSightApp:
     def _init_state(self):
         """
         Initializes the application state based on priority precedence:
-        1. URL Query Parameters (Deep Linking)
-        2. Existing Session State (Browser Refresh/F5)
-        3. Default Values (First Load)
+        1. URL Query Parameters
+        2. Existing Session State
+        3. Default Values
         """
         
-        # --- 1. View Context (Fleet vs. Asset) ---
+        # --- 1. View Context ---
         url_view = st.query_params.get('view')
         session_view = self._get_state('view')
-        
-        # Logic: If URL exists, it wins. Else, check session. Else, default to 'fleet'.
         final_view = url_view or session_view or 'fleet'
         
         self._set_state('view', final_view)
@@ -59,14 +57,12 @@ class TwinSightApp:
         # --- 2. Asset Selection ---
         url_asset = st.query_params.get('asset_id')
         session_asset = self._get_state('asset_id')
-        
         final_asset = url_asset or session_asset or None
         
         self._set_state('asset_id', final_asset)
         self._sync_url('asset_id', final_asset)
 
         # --- 3. Filters (Session Persistence Only) ---
-        # Filters are not synced to URL initially to avoid complexity with JSON serialization.
         if self._get_state('filters') is None:
             default_filters = {
                 'date_range': None,
@@ -75,15 +71,17 @@ class TwinSightApp:
             }
             self._set_state('filters', default_filters)
 
+        # --- 4. Simulation Config (CORREÇÃO AQUI) ---
         if self._get_state('sim_config') is None:
             default_sim = {
-                'motor_type': 'FAN',
-                'motor_count': 1,
-                'duration_days': 60,
-                'sampling_rate_min': 60
+                'asset_type': 'PUMP',      # Changed from generic motor to specific asset
+                'asset_count': 5,          # Default number of assets to generate
+                'duration_days': 180,      # Matches DAYS_HISTORY
+                'interval_minutes': 60     # Matches INTERVAL_MINUTES
             }
-        self._set_state('sim_config', default_sim)
+            self._set_state('sim_config', default_sim)
     
+    # --- Properties ---
     @property
     def context(self) -> str:
         """Gets the current view context ('fleet' or 'asset')."""
@@ -110,7 +108,12 @@ class TwinSightApp:
     def filters(self) -> Dict:
         """Gets the active filter configuration."""
         return self._get_state('filters', {})
-    
+
+    @filters.setter
+    def filters(self, new_filters: Dict):
+        """Sets the active filters."""
+        self._set_state('filters', new_filters)
+
     @property
     def simulation_config(self) -> Dict:
         """Gets the current simulation configuration."""
@@ -120,8 +123,3 @@ class TwinSightApp:
     def simulation_config(self, new_config: Dict):
         """Sets the simulation configuration."""
         self._set_state('sim_config', new_config)
-
-    @filters.setter
-    def filters(self, new_filters: Dict):
-        """Sets the active filters (Persisted in Session State only)."""
-        self._set_state('filters', new_filters)
