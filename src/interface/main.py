@@ -23,9 +23,10 @@ def main():
     
     Handles the application lifecycle:
     1. Configuration (Page setup).
-    2. State Initialization (TwinSightApp singleton).
-    3. Global Navigation (Sidebar).
-    4. Module Routing (Context-based rendering).
+    2. UI Customization (CSS injection).
+    3. State Initialization (TwinSightApp singleton).
+    4. Global Navigation (Sidebar).
+    5. Module Routing (Context-based rendering).
     """
     
     # Configure Streamlit page settings. Must be the first Streamlit command.
@@ -35,6 +36,23 @@ def main():
         layout="wide",
         initial_sidebar_state="expanded"
     )
+
+    # --- UI Customization (CSS) ---
+    # Injects custom CSS to control the layout and visibility of Streamlit elements.
+    # 1. Hides the 'Deploy' button.
+    # 2. Hides the 'Main Menu' (three dots).
+    # 3. Forces the Sidebar to a compact width (250px).
+    st.markdown("""
+        <style>
+            .stDeployButton {display: none;}
+            #MainMenu {visibility: hidden;}
+            
+            section[data-testid="stSidebar"] {
+                min-width: 250px !important;
+                max-width: 250px !important;
+            }
+        </style>
+    """, unsafe_allow_html=True)
 
     # Initialize the central application controller.
     # This recovers the state from URL parameters or Session State immediately.
@@ -49,38 +67,33 @@ def main():
         else:
             st.title("TwinSight")
         
-        # Determine the active sidebar item based on the current application context.
-        # 'fleet' and 'asset' contexts both map to 'Monitoring' (index 0).
-        if app.context == 'settings':
-            initial_index = 2
-        elif app.context == 'simulation':
-            initial_index = 1
-        else:
-            initial_index = 0
-        
-        nav_options = ["Monitoring", "Simulation", "Settings"]
-        
-        nav_selection = st.radio(
-            label="Navigation",
-            options=nav_options,
-            index=initial_index,
-            label_visibility="collapsed"
-        )
+        st.markdown("### Navigation")
 
-        # Handle navigation state transitions.
-        # Only trigger a rerun if the selection differs from the current active context.
-        if nav_selection == "Settings" and app.context != "settings":
-            app.context = "settings"
-            st.rerun()
-            
-        elif nav_selection == "Simulation" and app.context != "simulation":
-            app.context = "simulation"
-            st.rerun()
-            
-        elif nav_selection == "Monitoring" and app.context not in ["fleet", "asset"]:
-            # Default to 'fleet' view when returning to Monitoring.
-            app.context = "fleet"
-            st.rerun()
+        # Navigation Buttons
+        # We use standard buttons instead of radio for a cleaner look.
+        # The 'type' parameter is used to highlight the active context.
+        
+        # 1. Monitoring Button
+        # Active if context is 'fleet' or 'asset'
+        is_monitoring = app.context in ['fleet', 'asset']
+        if st.button("Monitoring", use_container_width=True, type="primary" if is_monitoring else "secondary"):
+            if app.context not in ['fleet', 'asset']:
+                app.context = "fleet"
+                st.rerun()
+
+        # 2. Simulation Button
+        is_simulation = app.context == 'simulation'
+        if st.button("Simulation", use_container_width=True, type="primary" if is_simulation else "secondary"):
+            if app.context != 'simulation':
+                app.context = "simulation"
+                st.rerun()
+
+        # 3. Settings Button
+        is_settings = app.context == 'settings'
+        if st.button("Settings", use_container_width=True, type="primary" if is_settings else "secondary"):
+            if app.context != 'settings':
+                app.context = "settings"
+                st.rerun()
 
         st.divider()
         
