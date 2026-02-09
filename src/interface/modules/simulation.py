@@ -1,7 +1,7 @@
 import streamlit as st
 
 def render_simulation(app):
-    st.header("⚙️ Data Generation Engine")
+    st.header("Data Generation Engine")
     st.markdown("""
     Configure the parameters for the **Historical Data Seeder**. 
     This module generates synthetic telemetry data representing the lifecycle of industrial assets 
