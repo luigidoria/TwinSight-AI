@@ -76,21 +76,21 @@ def main():
         # 1. Monitoring Button
         # Active if context is 'fleet' or 'asset'
         is_monitoring = app.context in ['fleet', 'asset']
-        if st.button("Monitoring", use_container_width=True, type="primary" if is_monitoring else "secondary"):
+        if st.button("Monitoring", width='stretch, type="primary" if is_monitoring else "secondary"):
             if app.context not in ['fleet', 'asset']:
                 app.context = "fleet"
                 st.rerun()
 
         # 2. Simulation Button
         is_simulation = app.context == 'simulation'
-        if st.button("Simulation", use_container_width=True, type="primary" if is_simulation else "secondary"):
+        if st.button("Simulation", width='stretch, type="primary" if is_simulation else "secondary"):
             if app.context != 'simulation':
                 app.context = "simulation"
                 st.rerun()
 
         # 3. Settings Button
         is_settings = app.context == 'settings'
-        if st.button("Settings", use_container_width=True, type="primary" if is_settings else "secondary"):
+        if st.button("Settings", width='stretch, type="primary" if is_settings else "secondary"):
             if app.context != 'settings':
                 app.context = "settings"
                 st.rerun()
